@@ -5,14 +5,16 @@ import { getTier } from '@/lib/tiers'
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const fid = searchParams.get('fid')
+    const limitParam = searchParams.get('limit')
+    const limit = limitParam ? parseInt(limitParam) : 1000
 
     if (!fid) {
-        return NextResponse.json({ error: 'FID required' }, { status: 400 })
+        return NextResponse.json({ error: 'FID is required' }, { status: 400 })
     }
 
     try {
         // 1. Get following list
-        const following = await getFollowing(parseInt(fid))
+        const following = await getFollowing(parseInt(fid), limit)
 
         // 2. Add tier calculation to each user
         const withTiers = following.map((user) => ({

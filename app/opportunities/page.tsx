@@ -13,7 +13,8 @@ import { useMemo } from 'react'
 export default function OpportunitiesPage() {
     const { user } = useFarcasterContext()
     const { following, loading: followingLoading } = useFollowing(user?.fid)
-    const { followers, loading: followersLoading } = useFollowers(user?.fid)
+    // Limit to 1000 followers to save API credits
+    const { followers, loading: followersLoading } = useFollowers(user?.fid, 1000)
 
     const opportunities = useMemo(() => {
         if (!following.length || !followers.length) return []

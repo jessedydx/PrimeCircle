@@ -9,7 +9,7 @@ export const neynarClient = new NeynarAPIClient({ apiKey })
 /**
  * Get all users a FID is following (enriched with scores)
  */
-export async function getFollowing(fid: number) {
+export async function getFollowing(fid: number, limit?: number) {
     let allFids: number[] = []
     let cursor: string | undefined = undefined
 
@@ -20,6 +20,12 @@ export async function getFollowing(fid: number) {
             const fids = response.users.map((u: any) => u.user.fid)
             allFids = [...allFids, ...fids]
             cursor = response.next?.cursor || undefined
+
+            // Stop if we reached the limit
+            if (limit && allFids.length >= limit) {
+                allFids = allFids.slice(0, limit)
+                break
+            }
         } while (cursor)
 
         // 2. Fetch details for all FIDs in bulk (to get scores)
@@ -34,7 +40,7 @@ export async function getFollowing(fid: number) {
 /**
  * Get all followers of a FID (enriched with scores)
  */
-export async function getFollowers(fid: number) {
+export async function getFollowers(fid: number, limit?: number) {
     let allFids: number[] = []
     let cursor: string | undefined = undefined
 
@@ -45,6 +51,12 @@ export async function getFollowers(fid: number) {
             const fids = response.users.map((u: any) => u.user.fid)
             allFids = [...allFids, ...fids]
             cursor = response.next?.cursor || undefined
+
+            // Stop if we reached the limit
+            if (limit && allFids.length >= limit) {
+                allFids = allFids.slice(0, limit)
+                break
+            }
         } while (cursor)
 
         // 2. Fetch details for all FIDs in bulk (to get scores)

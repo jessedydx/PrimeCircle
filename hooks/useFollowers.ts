@@ -5,9 +5,9 @@ import { EnrichedFollower } from '@/types/user'
 import { mockFollowers, USE_MOCK_DATA } from '@/lib/mockData'
 import { getTier } from '@/lib/tiers'
 
-export function useFollowers(fid: number | undefined) {
+export function useFollowers(fid: number | undefined, limit?: number) {
     const { data, isLoading, error } = useQuery({
-        queryKey: ['followers', fid],
+        queryKey: ['followers', fid, limit],
         queryFn: async () => {
             if (!fid) throw new Error('FID required')
 
@@ -20,7 +20,7 @@ export function useFollowers(fid: number | undefined) {
                 })) as EnrichedFollower[]
             }
 
-            const response = await fetch(`/api/followers?fid=${fid}`)
+            const response = await fetch(`/api/followers?fid=${fid}&limit=${limit || 1000}`)
 
             if (!response.ok) {
                 throw new Error('Failed to fetch followers')
@@ -30,7 +30,7 @@ export function useFollowers(fid: number | undefined) {
             return users as EnrichedFollower[]
         },
         enabled: !!fid,
-        staleTime: 5 * 60 * 1000, // 5 minutes cache
+        staleTime: 60 * 60 * 1000, // 1 hour cache
     })
 
     return {

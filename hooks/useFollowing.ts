@@ -5,9 +5,9 @@ import { EnrichedFollowing } from '@/types/user'
 import { mockFollowingUsers, USE_MOCK_DATA } from '@/lib/mockData'
 import { getTier } from '@/lib/tiers'
 
-export function useFollowing(fid: number | undefined) {
+export function useFollowing(fid: number | undefined, limit?: number) {
     const { data, isLoading, error } = useQuery({
-        queryKey: ['following', fid],
+        queryKey: ['following', fid, limit],
         queryFn: async () => {
             if (!fid) throw new Error('FID required')
 
@@ -20,7 +20,7 @@ export function useFollowing(fid: number | undefined) {
                 })) as EnrichedFollowing[]
             }
 
-            const response = await fetch(`/api/following?fid=${fid}`)
+            const response = await fetch(`/api/following?fid=${fid}&limit=${limit || 1000}`)
 
             if (!response.ok) {
                 throw new Error('Failed to fetch following')
@@ -30,7 +30,7 @@ export function useFollowing(fid: number | undefined) {
             return users as EnrichedFollowing[]
         },
         enabled: !!fid,
-        staleTime: 5 * 60 * 1000, // 5 minutes cache
+        staleTime: 60 * 60 * 1000, // 1 hour cache
     })
 
     return {
