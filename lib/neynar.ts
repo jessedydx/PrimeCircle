@@ -7,21 +7,24 @@ const apiKey = process.env.NEYNAR_API_KEY || 'dummy_key_for_build'
 export const neynarClient = new NeynarAPIClient({ apiKey })
 
 /**
- * Get all users a FID is following
+ * Get all users a FID is following (enriched with scores)
  */
 export async function getFollowing(fid: number) {
-    let allFollowing: any[] = []
+    let allFids: number[] = []
     let cursor: string | undefined = undefined
 
     try {
+        // 1. Fetch all FIDs first
         do {
             const response = await neynarClient.fetchUserFollowing({ fid, limit: 100, cursor })
-
-            allFollowing = [...allFollowing, ...response.users]
+            const fids = response.users.map((u: any) => u.fid)
+            allFids = [...allFids, ...fids]
             cursor = response.next?.cursor || undefined
         } while (cursor)
 
-        return allFollowing
+        // 2. Fetch details for all FIDs in bulk (to get scores)
+        if (allFids.length === 0) return []
+        return await getUsersBulk(allFids)
     } catch (error) {
         console.error('Error fetching following:', error)
         throw error
@@ -29,21 +32,24 @@ export async function getFollowing(fid: number) {
 }
 
 /**
- * Get all followers of a FID
+ * Get all followers of a FID (enriched with scores)
  */
 export async function getFollowers(fid: number) {
-    let allFollowers: any[] = []
+    let allFids: number[] = []
     let cursor: string | undefined = undefined
 
     try {
+        // 1. Fetch all FIDs first
         do {
             const response = await neynarClient.fetchUserFollowers({ fid, limit: 100, cursor })
-
-            allFollowers = [...allFollowers, ...response.users]
+            const fids = response.users.map((u: any) => u.fid)
+            allFids = [...allFids, ...fids]
             cursor = response.next?.cursor || undefined
         } while (cursor)
 
-        return allFollowers
+        // 2. Fetch details for all FIDs in bulk (to get scores)
+        if (allFids.length === 0) return []
+        return await getUsersBulk(allFids)
     } catch (error) {
         console.error('Error fetching followers:', error)
         throw error
@@ -61,7 +67,12 @@ export async function getUsersBulk(fids: number[]) {
         for (let i = 0; i < fids.length; i += 100) {
             const chunk = fids.slice(i, i + 100)
             const response = await neynarClient.fetchBulkUsers({ fids: chunk })
-            chunks.push(...response.users)
+            // Map 'score' to 'neynar_user_score' if needed (API inconsistency safety)
+            const mappedUsers = response.users.map((u: any) => ({
+                ...u,
+                neynar_user_score: u.score || u.neynar_user_score,
+            }))
+            chunks.push(...mappedUsers)
         }
 
         return chunks
