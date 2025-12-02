@@ -1,0 +1,28 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getFollowing } from '@/lib/neynar'
+import { getTier } from '@/lib/tiers'
+
+export async function GET(request: NextRequest) {
+    const searchParams = request.nextUrl.searchParams
+    const fid = searchParams.get('fid')
+
+    if (!fid) {
+        return NextResponse.json({ error: 'FID required' }, { status: 400 })
+    }
+
+    try {
+        // 1. Get following list
+        const following = await getFollowing(parseInt(fid))
+
+        // 2. Add tier calculation to each user
+        const withTiers = following.map((user) => ({
+            ...user,
+            tier: getTier(user.neynar_user_score || 0),
+        }))
+
+        return NextResponse.json({ users: withTiers })
+    } catch (error) {
+        console.error('Error fetching following:', error)
+        return NextResponse.json({ error: 'Failed to fetch following' }, { status: 500 })
+    }
+}

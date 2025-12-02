@@ -1,0 +1,116 @@
+// Mock data for local development (Farcaster SDK doesn't work outside miniapp)
+
+export const mockFarcasterUser = {
+    fid: 12345,
+    username: 'testuser',
+    displayName: 'Test User',
+    pfpUrl: 'https://i.imgur.com/K3KJ6FA.png',
+}
+
+export const mockFollowingUsers = [
+    {
+        fid: 1,
+        username: 'vitalik',
+        display_name: 'Vitalik Buterin',
+        pfp_url: 'https://i.imgur.com/example1.png',
+        neynar_user_score: 95,
+        follower_count: 500000,
+        following_count: 1200,
+        power_badge: true,
+        profile: { bio: { text: 'Ethereum co-founder' } },
+    },
+    {
+        fid: 2,
+        username: 'dwr',
+        display_name: 'Dan Romero',
+        pfp_url: 'https://i.imgur.com/example2.png',
+        neynar_user_score: 92,
+        follower_count: 300000,
+        following_count: 800,
+        power_badge: true,
+        profile: { bio: { text: 'Farcaster co-founder' } },
+    },
+    {
+        fid: 3,
+        username: 'jessepollak',
+        display_name: 'Jesse Pollak',
+        pfp_url: 'https://i.imgur.com/example3.png',
+        neynar_user_score: 88,
+        follower_count: 200000,
+        following_count: 600,
+        power_badge: true,
+        profile: { bio: { text: 'Base lead at Coinbase' } },
+    },
+    {
+        fid: 4,
+        username: 'gooduser',
+        display_name: 'Good User',
+        pfp_url: 'https://i.imgur.com/example4.png',
+        neynar_user_score: 75,
+        follower_count: 50000,
+        following_count: 400,
+        power_badge: false,
+        profile: { bio: { text: 'Active community member' } },
+    },
+    {
+        fid: 5,
+        username: 'averageuser',
+        display_name: 'Average User',
+        pfp_url: 'https://i.imgur.com/example5.png',
+        neynar_user_score: 65,
+        follower_count: 10000,
+        following_count: 300,
+        power_badge: false,
+        profile: { bio: { text: 'Regular user' } },
+    },
+    {
+        fid: 6,
+        username: 'lowscoreuser1',
+        display_name: 'Low Score User 1',
+        pfp_url: 'https://i.imgur.com/example6.png',
+        neynar_user_score: 45,
+        follower_count: 500,
+        following_count: 200,
+        power_badge: false,
+        profile: { bio: { text: 'Occasional user' } },
+    },
+    {
+        fid: 7,
+        username: 'lowscoreuser2',
+        display_name: 'Low Score User 2',
+        pfp_url: 'https://i.imgur.com/example7.png',
+        neynar_user_score: 35,
+        follower_count: 200,
+        following_count: 100,
+        power_badge: false,
+        profile: { bio: { text: 'New to Farcaster' } },
+    },
+    {
+        fid: 8,
+        username: 'spammer',
+        display_name: 'Spammy Account',
+        pfp_url: 'https://i.imgur.com/example8.png',
+        neynar_user_score: 15,
+        follower_count: 50,
+        following_count: 5000,
+        power_badge: false,
+        profile: { bio: { text: 'Follow me!' } },
+    },
+]
+
+export const mockFollowers = [
+    ...mockFollowingUsers.slice(0, 5), // Some mutual followers
+    {
+        fid: 100,
+        username: 'newfollower',
+        display_name: 'New Follower',
+        pfp_url: 'https://i.imgur.com/example100.png',
+        neynar_user_score: 82,
+        follower_count: 5000,
+        following_count: 300,
+        power_badge: false,
+        profile: { bio: { text: 'Opportunity account' } },
+    },
+]
+
+export const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'

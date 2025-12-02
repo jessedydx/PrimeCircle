@@ -1,0 +1,27 @@
+{
+    "miniapp": {
+        "version": "1",
+        "name": "PrimeCircle",
+        "iconUrl": "https://yourdomain.vercel.app/icon.png",
+        "homeUrl": "https://yourdomain.vercel.app",
+        "imageUrl": "https://yourdomain.vercel.app/og-image.png",
+        "buttonTitle": "Analyze Follow Quality",
+        "splashImageUrl": "https://yourdomain.vercel.app/splash.png",
+        "splashBackgroundColor": "#7c3aed",
+        "primaryCategory": "social",
+        "subtitle": "Analyze your Farcaster follow network",
+        "description": "Evaluate the quality of creators you follow using Neynar scores and algorithmic metrics. Get insights into your network with tier-based classification (S/A/B/C/D) and quality scoring.",
+        "tags": [
+            "analytics",
+            "social",
+            "farcaster",
+            "quality",
+            "network"
+        ],
+        "tagline": "Follow Quality Analytics for Farcaster",
+        "ogTitle": "PrimeCircle - Farcaster Follow Quality",
+        "ogDescription": "Analyze the quality of your Farcaster follow network with Neynar scores and tier-based insights.",
+        "ogImageUrl": "https://yourdomain.vercel.app/og-image.png",
+        "requiredCapabilities": []
+    }
+}
