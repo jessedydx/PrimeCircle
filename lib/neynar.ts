@@ -4,7 +4,7 @@ if (!process.env.NEYNAR_API_KEY) {
     throw new Error('NEYNAR_API_KEY is required')
 }
 
-export const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY)
+export const neynarClient = new NeynarAPIClient({ apiKey: process.env.NEYNAR_API_KEY })
 
 /**
  * Get all users a FID is following
@@ -15,13 +15,10 @@ export async function getFollowing(fid: number) {
 
     try {
         do {
-            const response = await neynarClient.fetchUserFollowing(fid, {
-                limit: 100,
-                cursor,
-            })
+            const response = await neynarClient.fetchUserFollowing(fid, { limit: 100, cursor })
 
             allFollowing = [...allFollowing, ...response.users]
-            cursor = response.next?.cursor
+            cursor = response.next?.cursor || undefined
         } while (cursor)
 
         return allFollowing
@@ -40,13 +37,10 @@ export async function getFollowers(fid: number) {
 
     try {
         do {
-            const response = await neynarClient.fetchUserFollowers(fid, {
-                limit: 100,
-                cursor,
-            })
+            const response = await neynarClient.fetchUserFollowers(fid, { limit: 100, cursor })
 
             allFollowers = [...allFollowers, ...response.users]
-            cursor = response.next?.cursor
+            cursor = response.next?.cursor || undefined
         } while (cursor)
 
         return allFollowers
@@ -66,7 +60,7 @@ export async function getUsersBulk(fids: number[]) {
         // Neynar bulk endpoint: max 100 users per request
         for (let i = 0; i < fids.length; i += 100) {
             const chunk = fids.slice(i, i + 100)
-            const response = await neynarClient.fetchBulkUsers(chunk)
+            const response = await neynarClient.fetchBulkUsers({ fids: chunk })
             chunks.push(...response.users)
         }
 
