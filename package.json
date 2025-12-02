@@ -2,7 +2,7 @@
   "name": "primecircle",
   "version": "0.1.0",
   "private": true,
-  "author": "jesse7",
+  "author": "Jesse7tx",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
