@@ -30,7 +30,7 @@ export function useFollowing(fid: number | undefined, limit?: number) {
             return users as EnrichedFollowing[]
         },
         enabled: !!fid,
-        staleTime: 60 * 60 * 1000, // 1 hour cache
+        staleTime: 24 * 60 * 60 * 1000, // 24 hours cache
     })
 
     return {

@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const fid = searchParams.get('fid')
     const limitParam = searchParams.get('limit')
-    const limit = limitParam ? parseInt(limitParam) : 1000
+    const limit = limitParam ? parseInt(limitParam) : 500
 
     if (!fid) {
         return NextResponse.json({ error: 'FID is required' }, { status: 400 })
