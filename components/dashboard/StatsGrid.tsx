@@ -18,11 +18,11 @@ export function StatsGrid({ metrics }: StatsGridProps) {
     ]
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2">
             {stats.map((stat, index) => (
-                <Card key={index} className="bg-slate-800/50">
-                    <p className="text-xs text-gray-400">{stat.label}</p>
-                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                <Card key={index} className="bg-slate-800/50 p-2">
+                    <p className="text-[10px] text-gray-400 leading-tight">{stat.label}</p>
+                    <p className="text-lg font-bold text-white mt-0.5">{stat.value}</p>
                 </Card>
             ))}
         </div>
