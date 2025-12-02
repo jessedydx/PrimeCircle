@@ -15,7 +15,7 @@ export async function getFollowing(fid: number) {
 
     try {
         do {
-            const response = await neynarClient.fetchUserFollowing(fid, { limit: 100, cursor })
+            const response = await neynarClient.fetchUserFollowing({ fid, limit: 100, cursor })
 
             allFollowing = [...allFollowing, ...response.users]
             cursor = response.next?.cursor || undefined
@@ -37,7 +37,7 @@ export async function getFollowers(fid: number) {
 
     try {
         do {
-            const response = await neynarClient.fetchUserFollowers(fid, { limit: 100, cursor })
+            const response = await neynarClient.fetchUserFollowers({ fid, limit: 100, cursor })
 
             allFollowers = [...allFollowers, ...response.users]
             cursor = response.next?.cursor || undefined
