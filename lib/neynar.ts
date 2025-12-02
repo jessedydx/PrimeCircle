@@ -68,10 +68,14 @@ export async function getUsersBulk(fids: number[]) {
             const chunk = fids.slice(i, i + 100)
             const response = await neynarClient.fetchBulkUsers({ fids: chunk })
             // Map 'score' to 'neynar_user_score' if needed (API inconsistency safety)
-            const mappedUsers = response.users.map((u: any) => ({
-                ...u,
-                neynar_user_score: u.score || u.neynar_user_score,
-            }))
+            // AND Normalize score: API returns 0-1 (e.g. 0.98), we need 0-100 (e.g. 98)
+            const mappedUsers = response.users.map((u: any) => {
+                const rawScore = u.score || u.neynar_user_score || 0
+                return {
+                    ...u,
+                    neynar_user_score: rawScore * 100,
+                }
+            })
             chunks.push(...mappedUsers)
         }
 
