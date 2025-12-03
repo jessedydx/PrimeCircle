@@ -84,7 +84,7 @@ export default function DashboardPage() {
                 <StatsGrid metrics={qualityScore?.metrics} />
 
                 {/* Tier Distribution */}
-                <TierDistributionCard distribution={qualityScore?.metrics?.tierDistribution} />
+                <TierDistributionCard distribution={qualityScore?.metrics?.tierDistribution} score={qualityScore?.score} />
 
                 {/* Navigation Cards */}
                 <div className="space-y-3">
