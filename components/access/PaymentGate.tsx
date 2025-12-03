@@ -19,6 +19,8 @@ export function PaymentGate({ onAccessGranted }: PaymentGateProps) {
         hash,
     })
 
+    const chainId = useChainId()
+
     // Auto-connect Farcaster wallet on mount
     useEffect(() => {
         if (!isConnected && connectors[0]) {
@@ -149,7 +151,7 @@ export function PaymentGate({ onAccessGranted }: PaymentGateProps) {
                         <p className="font-bold text-gray-300 mb-2">🔍 Debug Info:</p>
                         <p>Connected: {isConnected ? 'Yes' : 'No'}</p>
                         <p>Address: {address || 'None'}</p>
-                        <p>Chain ID: {window.ethereum?.chainId || 'Unknown'}</p>
+                        <p>Chain ID: {chainId || 'Unknown'}</p>
                     </div>
                 </div>
             </div>
