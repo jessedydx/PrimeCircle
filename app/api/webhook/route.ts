@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import {
+    saveNotificationToken,
+    removeNotificationToken,
+} from '@/lib/supabase'
 
 /**
  * Webhook endpoint for Farcaster notifications
@@ -27,22 +31,25 @@ export async function POST(req: NextRequest) {
                 const { fid, token, url } = body.data
 
                 console.log(`🔔 Notifications enabled for user ${fid}`)
-                console.log(`   Token: ${token}`)
-                console.log(`   URL: ${url}`)
 
-                // TODO: Save to database
-                // await saveNotificationToken(fid, token, url)
-
-                // For now, just log it (you'll add database later)
-                console.warn('⚠️  TOKEN NOT SAVED - Configure database first!')
+                try {
+                    await saveNotificationToken(fid, token, url)
+                    console.log(`✅ Token saved to database for user ${fid}`)
+                } catch (error) {
+                    console.error('❌ Failed to save token:', error)
+                }
                 break
 
             case 'notifications.disable':
                 // User disabled notifications
                 console.log(`🔕 Notifications disabled for user ${body.data.fid}`)
 
-                // TODO: Remove from database
-                // await removeNotificationToken(body.data.fid)
+                try {
+                    await removeNotificationToken(body.data.fid)
+                    console.log(`✅ Token removed from database`)
+                } catch (error) {
+                    console.error('❌ Failed to remove token:', error)
+                }
                 break
 
             default:
