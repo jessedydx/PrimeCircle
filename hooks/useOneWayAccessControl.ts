@@ -1,67 +1,71 @@
 'use client'
 
-import { useReadContract, useAccount } from 'wagmi'
+import { useReadContracts, useAccount } from 'wagmi'
 import { ONE_WAY_ACCESS, ACCESS_CONTRACT_ABI } from '@/config/contracts'
+import { FarcasterUser } from './useFarcasterContext'
+import { useMemo } from 'react'
 
-/**
- * Hook to check if user has access to One-Way Follows feature
- * Uses the ONE_WAY_ACCESS contract
- */
-export function useOneWayAccessControl(userAddress: string | undefined) {
+export function useOneWayAccessControl(user: FarcasterUser | null) {
     const { address: connectedAddress } = useAccount()
 
-    const addressToCheck = connectedAddress || userAddress
+    const addressesToCheck = useMemo(() => {
+        const set = new Set<string>()
+        if (connectedAddress) set.add(connectedAddress)
+        if (user?.custodyAddress) set.add(user.custodyAddress)
+        if (user?.verifiedAddresses) {
+            user.verifiedAddresses.forEach(addr => set.add(addr))
+        }
+        return Array.from(set) as `0x${string}`[]
+    }, [connectedAddress, user])
 
-    // Check payment contract access
+    // 1. Check Contract Access
     const {
-        data: contractAccess,
+        data: contractResults,
         isLoading: isCheckingContract,
-        error,
         refetch: refetchContract,
-    } = useReadContract({
-        address: ONE_WAY_ACCESS as `0x${string}`,
-        abi: ACCESS_CONTRACT_ABI,
-        functionName: 'checkAccess',
-        args: addressToCheck ? [addressToCheck as `0x${string}`] : undefined,
-        query: {
-            enabled: !!addressToCheck,
-        },
+    } = useReadContracts({
+        contracts: addressesToCheck.map(addr => ({
+            address: ONE_WAY_ACCESS as `0x${string}`,
+            abi: ACCESS_CONTRACT_ABI,
+            functionName: 'checkAccess',
+            args: [addr],
+        })),
+        query: { enabled: addressesToCheck.length > 0 }
     })
 
-    // Check NFT ownership (Lifetime Access)
+    // 2. Check NFT Balance
     const {
-        data: nftBalance,
+        data: nftResults,
         isLoading: isCheckingNft,
         refetch: refetchNft,
-    } = useReadContract({
-        address: '0x3F7A0ffC8703adcB405D3Fdb179a74281C5CF80b', // TIME_CAPSULES_NFT
-        abi: [
-            {
+    } = useReadContracts({
+        contracts: addressesToCheck.map(addr => ({
+            address: '0x3F7A0ffC8703adcB405D3Fdb179a74281C5CF80b',
+            abi: [{
                 inputs: [{ name: 'owner', type: 'address' }],
                 name: 'balanceOf',
                 outputs: [{ name: '', type: 'uint256' }],
                 stateMutability: 'view',
                 type: 'function',
-            },
-        ],
-        functionName: 'balanceOf',
-        args: addressToCheck ? [addressToCheck as `0x${string}`] : undefined,
-        query: {
-            enabled: !!addressToCheck,
-        },
+            }] as const,
+            functionName: 'balanceOf',
+            args: [addr],
+        })),
+        query: { enabled: addressesToCheck.length > 0 }
     })
 
-    // TEMPORARY: Force no access for payment gate testing
+    const hasAccess = useMemo(() => {
+        const contractAccess = contractResults?.some(r => r.status === 'success' && r.result === true)
+        const nftAccess = nftResults?.some(r => r.status === 'success' && Number(r.result) > 0)
+        return contractAccess || nftAccess
+    }, [contractResults, nftResults])
+
     const TESTING_PAYMENT_GATE = false
 
-    const hasNftAccess = Number(nftBalance) > 0
-    const hasContractAccess = contractAccess as boolean ?? false
-    const hasAccess = hasContractAccess || hasNftAccess
-
     return {
-        hasAccess: TESTING_PAYMENT_GATE ? false : hasAccess,
+        hasAccess: TESTING_PAYMENT_GATE ? false : (hasAccess ?? false),
         isChecking: isCheckingContract || isCheckingNft,
-        error: error ? error.message : null,
+        error: null,
         recheckAccess: () => {
             refetchContract()
             refetchNft()

@@ -10,6 +10,7 @@ export interface FarcasterUser {
     displayName: string
     pfpUrl: string
     custodyAddress?: string
+    verifiedAddresses?: string[]
 }
 
 export function useFarcasterContext() {
@@ -40,6 +41,7 @@ export function useFarcasterContext() {
                     displayName: context.user.displayName || '',
                     pfpUrl: context.user.pfpUrl || '',
                     custodyAddress: (context.user as any)?.connectedAddress || (context.user as any)?.custodyAddress,
+                    verifiedAddresses: (context.user as any)?.verifiedAddresses || [],
                 })
             } catch (err) {
                 console.error('Failed to load Farcaster context:', err)

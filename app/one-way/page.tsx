@@ -17,7 +17,7 @@ export default function OneWayPage() {
     const { user } = useFarcasterContext()
     const { following, loading: followingLoading } = useFollowing(user?.fid)
     const { followers, loading: followersLoading } = useFollowers(user?.fid)
-    const { hasAccess, isChecking, recheckAccess } = useOneWayAccessControl(user?.custodyAddress)
+    const { hasAccess, isChecking, recheckAccess } = useOneWayAccessControl(user)
 
     const oneWayFollows = useMemo(() => {
         if (!following.length || !followers.length) return []
