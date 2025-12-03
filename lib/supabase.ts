@@ -55,7 +55,7 @@ export async function getNotificationToken(fid: number) {
         .from('notification_tokens')
         .select('*')
         .eq('fid', fid)
-        .single()
+        .maybeSingle() // Returns null if no row found, instead of throwing error
 
     if (error) {
         console.error('Error getting notification token:', error)
