@@ -44,8 +44,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
     // On client-side after mount, use persistent provider
     const persister = createSyncStoragePersister({
         storage: window.localStorage,
-        maxSize: 1024 * 1024 * 10, // 10MB limit for large followers data
-        retry: removeOldestQuery,
     })
 
     return (
@@ -67,22 +65,4 @@ export function Providers({ children }: { children: React.ReactNode }) {
             </PersistQueryClientProvider>
         </WagmiProvider>
     )
-}
-
-// Helper function to remove oldest query when storage is full
-function removeOldestQuery(error: unknown) {
-    if (typeof window === 'undefined') return
-
-    // Clear old queries from localStorage if quota exceeded
-    try {
-        const keys = Object.keys(localStorage)
-        const queryKeys = keys.filter(key => key.startsWith('REACT_QUERY'))
-
-        if (queryKeys.length > 0) {
-            // Remove oldest one
-            localStorage.removeItem(queryKeys[0])
-        }
-    } catch (e) {
-        console.error('Failed to clear old queries:', e)
-    }
 }
