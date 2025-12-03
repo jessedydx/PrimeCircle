@@ -27,8 +27,11 @@ export function useOpportunitiesAccessControl(userAddress: string | undefined) {
         },
     })
 
+    // TEMPORARY: Force no access for payment gate testing
+    const TESTING_PAYMENT_GATE = true
+
     return {
-        hasAccess: hasAccess as boolean ?? false,
+        hasAccess: TESTING_PAYMENT_GATE ? false : (hasAccess as boolean ?? false),
         isChecking,
         error: error ? error.message : null,
         recheckAccess: refetch,
