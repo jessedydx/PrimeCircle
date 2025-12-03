@@ -1,11 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import sdk from '@farcaster/frame-sdk'
+import { Providers } from '@/components/Providers'
 import './globals.css'
-
-const queryClient = new QueryClient()
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -29,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <meta name="description" content="Analyze your Farcaster follow network quality" />
             </head>
             <body className="bg-slate-900 text-white antialiased">
-                <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+                <Providers>{children}</Providers>
             </body>
         </html>
     )
