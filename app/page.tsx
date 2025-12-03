@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import sdk from '@farcaster/frame-sdk'
 import { useFarcasterContext } from '@/hooks/useFarcasterContext'
 import { useFollowing } from '@/hooks/useFollowing'
 import { useQualityScore } from '@/hooks/useQualityScore'
@@ -15,6 +17,17 @@ export default function DashboardPage() {
     const { user, loading: userLoading, error: userError } = useFarcasterContext()
     const { following, loading: followingLoading } = useFollowing(user?.fid)
     const qualityScore = useQualityScore(following)
+
+    // Trigger "Add to Farcaster" popup on first visit
+    useEffect(() => {
+        const hasPromptedBefore = localStorage.getItem('miniapp_add_prompted')
+
+        if (!hasPromptedBefore && user) {
+            // Show the "Add PrimeCircle to Farcaster" popup
+            sdk.actions.addMiniApp()
+            localStorage.setItem('miniapp_add_prompted', 'true')
+        }
+    }, [user])
 
     if (userLoading || followingLoading) {
         return (

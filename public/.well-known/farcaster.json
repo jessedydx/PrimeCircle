@@ -25,6 +25,7 @@
         "ogTitle": "PrimeCircle Analytics",
         "ogDescription": "Analyze the quality of your Farcaster follow network with Neynar scores.",
         "ogImageUrl": "https://prime-circle.vercel.app/og-image.png",
+        "webhookUrl": "https://prime-circle.vercel.app/api/webhook",
         "requiredCapabilities": []
     }
 }
