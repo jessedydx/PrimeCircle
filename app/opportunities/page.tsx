@@ -1,20 +1,22 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useFarcasterContext } from '@/hooks/useFarcasterContext'
 import { useFollowing } from '@/hooks/useFollowing'
 import { useFollowers } from '@/hooks/useFollowers'
+import { useOpportunitiesAccessControl } from '@/hooks/useOpportunitiesAccessControl'
+import { OpportunitiesPaymentGate } from '@/components/access/OpportunitiesPaymentGate'
 import { UserCard } from '@/components/user-list/UserCard'
 import { EmptyState } from '@/components/user-list/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { ChevronLeft, Star } from 'lucide-react'
 import Link from 'next/link'
-import { useMemo } from 'react'
 
 export default function OpportunitiesPage() {
     const { user } = useFarcasterContext()
     const { following, loading: followingLoading } = useFollowing(user?.fid)
-    // Limit to 500 followers to save API credits
     const { followers, loading: followersLoading } = useFollowers(user?.fid, 500)
+    const { hasAccess, isChecking, recheckAccess } = useOpportunitiesAccessControl(user?.custodyAddress)
 
     const opportunities = useMemo(() => {
         if (!following.length || !followers.length) return []
@@ -27,23 +29,30 @@ export default function OpportunitiesPage() {
                 ...follower,
                 isOpportunity: follower.neynar_user_score >= 80,
             }))
-            .sort((a, b) => b.neynar_user_score - a.neynar_user_score) // Highest score first
+            .sort((a, b) => b.neynar_user_score - a.neynar_user_score)
     }, [following, followers])
 
     const loading = followingLoading || followersLoading
 
-    if (loading) {
+    // Show loading while checking access or loading data
+    if (isChecking || loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen gap-4">
                 <LoadingSpinner size="lg" />
-                <p className="text-gray-400">Finding opportunities...</p>
+                <p className="text-gray-400">
+                    {isChecking ? 'Checking access...' : 'Finding opportunities...'}
+                </p>
             </div>
         )
     }
 
+    // Show payment gate if no access
+    if (!hasAccess) {
+        return <OpportunitiesPaymentGate onAccessGranted={recheckAccess} />
+    }
+
     return (
         <main className="min-h-screen bg-slate-900 pb-20">
-            {/* Navbar */}
             <nav className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 px-4 py-3">
                 <div className="flex items-center gap-3 max-w-2xl mx-auto">
                     <Link href="/">
@@ -52,11 +61,15 @@ export default function OpportunitiesPage() {
                         </button>
                     </Link>
                     <h1 className="text-xl font-bold text-white">Opportunities</h1>
+                    <div className="ml-auto">
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                            Premium
+                        </span>
+                    </div>
                 </div>
             </nav>
 
             <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-                {/* Description */}
                 <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
                     <p className="text-sm text-gray-300 mb-2">
                         These accounts follow you, but you don't follow them back.
@@ -67,7 +80,6 @@ export default function OpportunitiesPage() {
                     <p className="text-xs text-gray-400">Sorted by Neynar Score (High to Low)</p>
                 </div>
 
-                {/* Stats */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
                         <p className="text-xs text-gray-400">Total Opportunities</p>
@@ -81,7 +93,6 @@ export default function OpportunitiesPage() {
                     </div>
                 </div>
 
-                {/* User List */}
                 <div className="space-y-3">
                     {opportunities.length === 0 ? (
                         <EmptyState
