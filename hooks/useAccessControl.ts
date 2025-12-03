@@ -1,6 +1,3 @@
-'use client'
-
-import { useEffect } from 'react'
 import { useReadContracts, useAccount } from 'wagmi'
 import { PRIME_CIRCLE_ACCESS, ACCESS_CONTRACT_ABI } from '@/config/contracts'
 import { FarcasterUser } from './useFarcasterContext'
