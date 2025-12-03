@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         siteName: 'PrimeCircle',
         images: [
             {
-                url: '/og-image.png',
+                url: '/og-image-v2.png',
                 width: 1200,
                 height: 630,
                 alt: 'PrimeCircle - Follow Quality Analytics',
@@ -27,11 +27,11 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'PrimeCircle Analytics',
         description: 'Analyze the quality of your Farcaster follow network with Neynar scores.',
-        images: ['/og-image.png'],
+        images: ['/og-image-v2.png'],
     },
     icons: {
-        icon: '/icon.png',
-        apple: '/icon.png',
+        icon: '/icon-v2.png',
+        apple: '/icon-v2.png',
     },
 }
 
