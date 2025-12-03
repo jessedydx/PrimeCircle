@@ -7,7 +7,8 @@ import { getTier } from '@/lib/tiers'
 
 export function useFollowing(fid: number | undefined, limit?: number) {
     const { data, isLoading, error } = useQuery({
-        queryKey: ['following', fid, limit],
+        // Don't include limit in queryKey - it fragments the cache
+        queryKey: ['following', fid],
         queryFn: async () => {
             if (!fid) throw new Error('FID required')
 
@@ -30,7 +31,8 @@ export function useFollowing(fid: number | undefined, limit?: number) {
             return users as EnrichedFollowing[]
         },
         enabled: !!fid,
-        staleTime: 24 * 60 * 60 * 1000, // 24 hours cache
+        // Data is very stable, cache for a week
+        staleTime: 7 * 24 * 60 * 60 * 1000,
     })
 
     return {
