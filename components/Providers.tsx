@@ -1,6 +1,6 @@
 'use client'
 
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { useState, useEffect } from 'react'
@@ -18,22 +18,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
             })
     )
 
-    const [persister, setPersister] = useState<any>(null)
+    const [isMounted, setIsMounted] = useState(false)
 
     useEffect(() => {
-        // Ensure this runs only on client side
-        if (typeof window !== 'undefined') {
-            const localStoragePersister = createSyncStoragePersister({
-                storage: window.localStorage,
-            })
-            setPersister(localStoragePersister)
-        }
+        setIsMounted(true)
     }, [])
 
-    if (!persister) {
-        // Render without persistence during SSR or initial mount
-        return <>{children}</>
+    // During SSR or before client hydration, use standard QueryClientProvider
+    if (!isMounted || typeof window === 'undefined') {
+        return (
+            <QueryClientProvider client={queryClient}>
+                {children}
+            </QueryClientProvider>
+        )
     }
+
+    // On client-side after mount, use persistent provider
+    const persister = createSyncStoragePersister({
+        storage: window.localStorage,
+    })
 
     return (
         <PersistQueryClientProvider
