@@ -1,32 +1,45 @@
-'use client'
-
-import { useEffect } from 'react'
-import sdk from '@farcaster/frame-sdk'
+import { Metadata } from 'next'
 import { Providers } from '@/components/Providers'
+import { FarcasterSDKInit } from '@/components/FarcasterSDKInit'
 import './globals.css'
 
+export const metadata: Metadata = {
+    title: 'PrimeCircle - Farcaster Follow Quality Analytics',
+    description: 'Analyze the quality of creators you follow using Neynar scores. Get insights into your network with tier based classification and quality scoring.',
+    metadataBase: new URL('https://prime-circle.vercel.app'),
+    openGraph: {
+        title: 'PrimeCircle Analytics',
+        description: 'Analyze the quality of your Farcaster follow network with Neynar scores.',
+        url: 'https://prime-circle.vercel.app',
+        siteName: 'PrimeCircle',
+        images: [
+            {
+                url: '/og-image.png',
+                width: 1200,
+                height: 630,
+                alt: 'PrimeCircle - Follow Quality Analytics',
+            },
+        ],
+        locale: 'en_US',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'PrimeCircle Analytics',
+        description: 'Analyze the quality of your Farcaster follow network with Neynar scores.',
+        images: ['/og-image.png'],
+    },
+    icons: {
+        icon: '/icon.png',
+        apple: '/icon.png',
+    },
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    useEffect(() => {
-        const initSDK = async () => {
-            try {
-                // Initialize Farcaster SDK
-                await sdk.actions.ready()
-                console.log('Farcaster SDK initialized')
-            } catch (error) {
-                console.error('Failed to initialize Farcaster SDK:', error)
-            }
-        }
-
-        initSDK()
-    }, [])
-
     return (
         <html lang="en">
-            <head>
-                <title>PrimeCircle - Farcaster Follow Quality Analytics</title>
-                <meta name="description" content="Analyze your Farcaster follow network quality" />
-            </head>
             <body className="bg-slate-900 text-white antialiased">
+                <FarcasterSDKInit />
                 <Providers>{children}</Providers>
             </body>
         </html>
