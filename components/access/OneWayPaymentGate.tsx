@@ -136,12 +136,13 @@ export function OneWayPaymentGate({ onAccessGranted }: OneWayPaymentGateProps) {
                     </p>
 
                     {/* DEBUG INFO - REMOVE IN PRODUCTION */}
-                    <div className="mt-8 p-4 bg-black/50 rounded-lg text-xs font-mono text-gray-400 overflow-hidden">
+                    <div className="mt-8 p-4 bg-black/50 rounded-lg text-xs font-mono text-gray-400 overflow-auto max-h-64">
                         <p className="font-bold text-gray-300 mb-2">🔍 Debug Info (One-Way):</p>
                         <p>Connected: {isConnected ? 'Yes' : 'No'}</p>
-                        <p>Address: {address || 'None'}</p>
+                        <p className="break-all">Address: {address || 'None'}</p>
                         <p>Chain ID: {chainId || 'Unknown'}</p>
-                        <p>Contract: {ONE_WAY_ACCESS}</p>
+                        <p className="break-all text-xs">Contract: {ONE_WAY_ACCESS}</p>
+                        <p className="text-yellow-400 mt-2">ℹ️ If payment not working on mobile, please use desktop web version</p>
                     </div>
                 </div>
             </div>
