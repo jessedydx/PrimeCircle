@@ -21,9 +21,9 @@ export function useFollowing(fid: number | undefined, limit?: number) {
                 })) as EnrichedFollowing[]
             }
 
-            // Always fetch max data (1000) for consistent caching
+            // Always fetch max data (500) for consistent caching
             // Limit parameter is ignored to ensure cache reuse across pages
-            const response = await fetch(`/api/following?fid=${fid}&limit=1000`)
+            const response = await fetch(`/api/following?fid=${fid}&limit=500`)
 
             if (!response.ok) {
                 throw new Error('Failed to fetch following')
