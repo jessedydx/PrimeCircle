@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi'
 import { parseEther } from 'viem'
 import { Lock, Loader2, Check } from 'lucide-react'
 import { ONE_WAY_ACCESS, ACCESS_CONTRACT_ABI, ONE_WAY_PRICE_ETH } from '@/config/contracts'
@@ -18,6 +18,8 @@ export function OneWayPaymentGate({ onAccessGranted }: OneWayPaymentGateProps) {
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
         hash,
     })
+
+    const chainId = useChainId()
 
     useEffect(() => {
         if (!isConnected && connectors[0]) {
