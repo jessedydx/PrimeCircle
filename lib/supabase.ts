@@ -1,9 +1,20 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_ANON_KEY!
+let supabaseInstance: SupabaseClient | null = null
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+function getSupabase() {
+    if (!supabaseInstance) {
+        const supabaseUrl = process.env.SUPABASE_URL
+        const supabaseKey = process.env.SUPABASE_ANON_KEY
+
+        if (!supabaseUrl || !supabaseKey) {
+            throw new Error('Missing Supabase environment variables')
+        }
+
+        supabaseInstance = createClient(supabaseUrl, supabaseKey)
+    }
+    return supabaseInstance
+}
 
 /**
  * Save notification token to database
@@ -13,6 +24,7 @@ export async function saveNotificationToken(
     token: string,
     notificationUrl: string
 ) {
+    const supabase = getSupabase()
     const { data, error } = await supabase
         .from('notification_tokens')
         .upsert(
@@ -38,6 +50,7 @@ export async function saveNotificationToken(
  * Get notification token for a user
  */
 export async function getNotificationToken(fid: number) {
+    const supabase = getSupabase()
     const { data, error } = await supabase
         .from('notification_tokens')
         .select('*')
@@ -56,6 +69,7 @@ export async function getNotificationToken(fid: number) {
  * Remove notification token (when user disables notifications)
  */
 export async function removeNotificationToken(fid: number) {
+    const supabase = getSupabase()
     const { error } = await supabase
         .from('notification_tokens')
         .delete()
