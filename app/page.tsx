@@ -18,27 +18,31 @@ export default function DashboardPage() {
     const { following, loading: followingLoading } = useFollowing(user?.fid)
     const qualityScore = useQualityScore(following)
 
-    // Trigger "Add to Farcaster" popup on first visit
+    // Check backend to see if user has added the miniapp
     useEffect(() => {
-        async function promptAddMiniApp() {
-            const hasPromptedBefore = localStorage.getItem('miniapp_add_prompted')
+        async function checkAndPromptAddMiniApp() {
+            if (!user?.fid) return
 
-            if (!hasPromptedBefore && user) {
-                try {
+            try {
+                // Check if user has already added the app (has notification token)
+                const response = await fetch(`/api/check-notification-status?fid=${user.fid}`)
+                const data = await response.json()
+
+                // Only show popup if user hasn't added the app
+                if (data.shouldShowPopup) {
                     // Wait a bit for SDK to be fully ready
                     await new Promise(resolve => setTimeout(resolve, 1000))
 
                     // Show the "Add PrimeCircle to Farcaster" popup
                     await sdk.actions.addMiniApp()
-                    localStorage.setItem('miniapp_add_prompted', 'true')
-                } catch (error) {
-                    console.log('Add MiniApp not available:', error)
                 }
+            } catch (error) {
+                console.log('Add MiniApp check failed:', error)
             }
         }
 
-        promptAddMiniApp()
-    }, [user])
+        checkAndPromptAddMiniApp()
+    }, [user?.fid])
 
     if (userLoading || followingLoading) {
         return (
