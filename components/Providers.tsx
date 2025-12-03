@@ -53,12 +53,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 persistOptions={{
                     persister,
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                    dehydrateOptions: {
-                        shouldDehydrateQuery: (query) => {
-                            // Always persist followers and following queries
-                            return query.queryKey[0] === 'followers' || query.queryKey[0] === 'following'
-                        },
-                    },
                 }}
             >
                 {children}
