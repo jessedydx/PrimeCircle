@@ -2,7 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import { get, set, del } from 'idb-keyval'
 import { WagmiProvider } from 'wagmi'
 import { wagmiConfig } from '@/config/wagmi'
 import { useState, useEffect } from 'react'
@@ -41,9 +42,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
         )
     }
 
-    // On client-side after mount, use persistent provider
-    const persister = createSyncStoragePersister({
-        storage: window.localStorage,
+    // On client-side after mount, use persistent provider with IndexedDB
+    // This solves mobile storage quota issues (localStorage is limited to 5MB)
+    const persister = createAsyncStoragePersister({
+        storage: {
+            getItem: async (key) => await get(key),
+            setItem: async (key, value) => await set(key, value),
+            removeItem: async (key) => await del(key),
+        },
     })
 
     return (
