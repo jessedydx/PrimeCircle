@@ -55,36 +55,40 @@ export function useOneWayAccessControl(user: FarcasterUser | null) {
         query: { enabled: addressesToCheck.length > 0 }
     })
 
-    // 2. Fallback to API if frontend fails (mobile compatibility)
+    // Calculate frontend access status
+    const frontendAccess = useMemo(() => {
+        const contractAccess = contractResults?.some(r => r.status === 'success' && (r.result as unknown as boolean) === true)
+        const nftAccess = nftResults?.some(r => r.status === 'success' && Number(r.result) > 0)
+        return contractAccess || nftAccess
+    }, [contractResults, nftResults])
+
+    // 2. Fallback to API if frontend fails or returns false (mobile compatibility)
     useEffect(() => {
         const fetchApiAccess = async () => {
             if (addressesToCheck.length === 0) return
-            if (contractResults && nftResults) return // Frontend worked
+            if (frontendAccess) return // Already have access via frontend
 
-            setIsCheckingApi(true)
-            try {
-                const response = await fetch(`/api/check-access?addresses=${addressesToCheck.join(',')}`)
-                const data = await response.json()
-                setApiAccess(data.oneWay)
-            } catch (error) {
-                console.error('API access check failed:', error)
-            } finally {
-                setIsCheckingApi(false)
+            // If we have results but no access, or if loading finished and no access, try API
+            if (!isCheckingContract && !isCheckingNft) {
+                setIsCheckingApi(true)
+                try {
+                    const response = await fetch(`/api/check-access?addresses=${addressesToCheck.join(',')}`)
+                    const data = await response.json()
+                    if (data.oneWay === true) {
+                        setApiAccess(true)
+                    }
+                } catch (error) {
+                    console.error('API access check failed:', error)
+                } finally {
+                    setIsCheckingApi(false)
+                }
             }
         }
 
         fetchApiAccess()
-    }, [addressesToCheck, contractResults, nftResults])
+    }, [addressesToCheck, frontendAccess, isCheckingContract, isCheckingNft])
 
-    const hasAccess = useMemo(() => {
-        // Use frontend result if available
-        const contractAccess = contractResults?.some(r => r.status === 'success' && (r.result as unknown as boolean) === true)
-        const nftAccess = nftResults?.some(r => r.status === 'success' && Number(r.result) > 0)
-        const frontendAccess = contractAccess || nftAccess
-
-        // Fallback to API result if frontend failed
-        return frontendAccess ?? apiAccess ?? false
-    }, [contractResults, nftResults, apiAccess])
+    const hasAccess = frontendAccess || (apiAccess ?? false)
 
     const TESTING_PAYMENT_GATE = false
 
@@ -95,7 +99,7 @@ export function useOneWayAccessControl(user: FarcasterUser | null) {
         recheckAccess: () => {
             refetchContract()
             refetchNft()
-            setApiAccess(null) // Force API refetch on next render
+            setApiAccess(null)
         },
     }
 }
