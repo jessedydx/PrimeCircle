@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi'
 import { parseEther } from 'viem'
 import { Lock, Loader2, Check } from 'lucide-react'
 import { PRIME_CIRCLE_ACCESS, ACCESS_CONTRACT_ABI, ACCESS_PRICE_ETH } from '@/config/contracts'
