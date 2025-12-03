@@ -1,56 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { useEffect } from 'react'
+import { useReadContract, useAccount } from 'wagmi'
 import { PRIME_CIRCLE_ACCESS, ACCESS_CONTRACT_ABI } from '@/config/contracts'
 
 export function useAccessControl(userAddress: string | undefined) {
-    const [hasAccess, setHasAccess] = useState<boolean>(false)
-    const [isChecking, setIsChecking] = useState<boolean>(true)
-    const [error, setError] = useState<string | null>(null)
+    const { address: connectedAddress } = useAccount()
 
-    useEffect(() => {
-        checkAccess()
-    }, [userAddress])
+    // Use connected address from Wagmi if available, otherwise use provided address
+    const addressToCheck = connectedAddress || userAddress
 
-    async function checkAccess() {
-        if (!userAddress) {
-            setIsChecking(false)
-            return
-        }
-
-        setIsChecking(true)
-        setError(null)
-
-        try {
-            // Connect to Base network via MetaMask
-            if (typeof window.ethereum === 'undefined') {
-                throw new Error('MetaMask not installed')
-            }
-
-            const provider = new ethers.BrowserProvider(window.ethereum)
-            const contract = new ethers.Contract(
-                PRIME_CIRCLE_ACCESS,
-                ACCESS_CONTRACT_ABI,
-                provider
-            )
-
-            // Check if user has access (NFT or paid)
-            const access = await contract.checkAccess(userAddress)
-            setHasAccess(access)
-        } catch (err: any) {
-            console.error('Access check error:', err)
-            setError(err.message || 'Failed to check access')
-            setHasAccess(false)
-        } finally {
-            setIsChecking(false)
-        }
-    }
+    const {
+        data: hasAccess,
+        isLoading: isChecking,
+        error,
+        refetch,
+    } = useReadContract({
+        address: PRIME_CIRCLE_ACCESS as `0x${string}`,
+        abi: ACCESS_CONTRACT_ABI,
+        functionName: 'checkAccess',
+        args: addressToCheck ? [addressToCheck as `0x${string}`] : undefined,
+        query: {
+            enabled: !!addressToCheck,
+        },
+    })
 
     return {
-        hasAccess,
+        hasAccess: hasAccess as boolean ?? false,
         isChecking,
-        error,
-        recheckAccess: checkAccess,
+        error: error ? error.message : null,
+        recheckAccess: refetch,
     }
 }

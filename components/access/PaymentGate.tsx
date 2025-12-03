@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { ethers } from 'ethers'
+import { useEffect } from 'react'
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { parseEther } from 'viem'
 import { Lock, Loader2, Check } from 'lucide-react'
 import { PRIME_CIRCLE_ACCESS, ACCESS_CONTRACT_ABI, ACCESS_PRICE_ETH } from '@/config/contracts'
 
@@ -10,61 +11,38 @@ interface PaymentGateProps {
 }
 
 export function PaymentGate({ onAccessGranted }: PaymentGateProps) {
-    const [isPurchasing, setIsPurchasing] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [txHash, setTxHash] = useState<string | null>(null)
+    const { isConnected, address } = useAccount()
+    const { connect, connectors } = useConnect()
+    const { data: hash, writeContract, isPending, error } = useWriteContract()
 
-    async function handlePurchase() {
-        setIsPurchasing(true)
-        setError(null)
-        setTxHash(null)
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+        hash,
+    })
 
-        try {
-            // Check if MetaMask is available
-            if (typeof window.ethereum === 'undefined') {
-                throw new Error('Please install MetaMask to continue')
-            }
-
-            // Request account access
-            await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-            const provider = new ethers.BrowserProvider(window.ethereum)
-            const signer = await provider.getSigner()
-
-            // Create contract instance
-            const contract = new ethers.Contract(
-                PRIME_CIRCLE_ACCESS,
-                ACCESS_CONTRACT_ABI,
-                signer
-            )
-
-            // Purchase access
-            const tx = await contract.purchaseAccess({
-                value: ethers.parseEther(ACCESS_PRICE_ETH),
-            })
-
-            setTxHash(tx.hash)
-
-            // Wait for transaction confirmation
-            await tx.wait()
-
-            // Success - notify parent component
-            onAccessGranted()
-        } catch (err: any) {
-            console.error('Purchase error:', err)
-
-            // User rejected transaction
-            if (err.code === 'ACTION_REJECTED') {
-                setError('Transaction cancelled')
-            } else if (err.message?.includes('insufficient funds')) {
-                setError('Insufficient ETH balance')
-            } else {
-                setError(err.message || 'Failed to purchase access')
-            }
-        } finally {
-            setIsPurchasing(false)
+    // Auto-connect Farcaster wallet on mount
+    useEffect(() => {
+        if (!isConnected && connectors[0]) {
+            connect({ connector: connectors[0] })
         }
+    }, [isConnected, connectors, connect])
+
+    // Call onAccessGranted when transaction succeeds
+    useEffect(() => {
+        if (isSuccess) {
+            onAccessGranted()
+        }
+    }, [isSuccess, onAccessGranted])
+
+    function handlePurchase() {
+        writeContract({
+            address: PRIME_CIRCLE_ACCESS as `0x${string}`,
+            abi: ACCESS_CONTRACT_ABI,
+            functionName: 'purchaseAccess',
+            value: parseEther(ACCESS_PRICE_ETH),
+        })
     }
+
+    const isProcessing = isPending || isConfirming
 
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -117,41 +95,53 @@ export function PaymentGate({ onAccessGranted }: PaymentGateProps) {
                     {/* Error Message */}
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
-                            <p className="text-sm text-red-400 text-center">{error}</p>
+                            <p className="text-sm text-red-400 text-center">
+                                {error.message?.includes('rejected') ? 'Transaction cancelled' : error.message}
+                            </p>
                         </div>
                     )}
 
                     {/* Transaction Hash */}
-                    {txHash && (
+                    {hash && isConfirming && (
                         <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 mb-4">
                             <p className="text-xs text-blue-400 text-center">
-                                Transaction pending...
+                                Transaction confirming...
                             </p>
                         </div>
                     )}
 
                     {/* Purchase Button */}
-                    <button
-                        onClick={handlePurchase}
-                        disabled={isPurchasing}
-                        className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-                    >
-                        {isPurchasing ? (
-                            <>
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                                Processing...
-                            </>
-                        ) : (
-                            <>
-                                <Lock className="h-5 w-5" />
-                                Unlock Access - {ACCESS_PRICE_ETH} ETH
-                            </>
-                        )}
-                    </button>
+                    {!isConnected ? (
+                        <button
+                            onClick={() => connect({ connector: connectors[0] })}
+                            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                            <Lock className="h-5 w-5" />
+                            Connect Wallet
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handlePurchase}
+                            disabled={isProcessing}
+                            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+                        >
+                            {isProcessing ? (
+                                <>
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                    {isConfirming ? 'Confirming...' : 'Processing...'}
+                                </>
+                            ) : (
+                                <>
+                                    <Lock className="h-5 w-5" />
+                                    Unlock Access - {ACCESS_PRICE_ETH} ETH
+                                </>
+                            )}
+                        </button>
+                    )}
 
                     {/* Note */}
                     <p className="text-xs text-gray-500 text-center mt-4">
-                        Make sure you're on the Base network in MetaMask
+                        Using Farcaster Wallet on Base Network
                     </p>
                 </div>
             </div>
