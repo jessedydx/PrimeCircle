@@ -9,6 +9,7 @@ export interface FarcasterUser {
     username: string
     displayName: string
     pfpUrl: string
+    custodyAddress?: string
 }
 
 export function useFarcasterContext() {
@@ -38,6 +39,7 @@ export function useFarcasterContext() {
                     username: context.user.username || '',
                     displayName: context.user.displayName || '',
                     pfpUrl: context.user.pfpUrl || '',
+                    custodyAddress: (context.user as any)?.connectedAddress || (context.user as any)?.custodyAddress,
                 })
             } catch (err) {
                 console.error('Failed to load Farcaster context:', err)

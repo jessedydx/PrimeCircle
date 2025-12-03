@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useFarcasterContext } from '@/hooks/useFarcasterContext'
 import { useFollowing } from '@/hooks/useFollowing'
+import { useAccessControl } from '@/hooks/useAccessControl'
+import { PaymentGate } from '@/components/access/PaymentGate'
 import { UserCard } from '@/components/user-list/UserCard'
 import { UserListFilter } from '@/components/user-list/UserListFilter'
 import { EmptyState } from '@/components/user-list/EmptyState'
@@ -15,19 +17,28 @@ import Link from 'next/link'
 export default function LowScorePage() {
     const { user } = useFarcasterContext()
     const { following, loading, error } = useFollowing(user?.fid)
+    const { hasAccess, isChecking, recheckAccess } = useAccessControl(user?.custodyAddress)
     const [selectedTiers, setSelectedTiers] = useState<Tier[]>([Tier.D])
 
     const filteredUsers = following
         .filter((u) => selectedTiers.includes(u.tier))
         .sort((a, b) => a.neynar_user_score - b.neynar_user_score) // Lowest first
 
-    if (loading) {
+    // Show loading while checking access
+    if (isChecking || loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen gap-4">
                 <LoadingSpinner size="lg" />
-                <p className="text-gray-400">Loading low score follows...</p>
+                <p className="text-gray-400">
+                    {isChecking ? 'Checking access...' : 'Loading low score follows...'}
+                </p>
             </div>
         )
+    }
+
+    // Show payment gate if no access
+    if (!hasAccess) {
+        return <PaymentGate onAccessGranted={recheckAccess} />
     }
 
     if (error) {
@@ -49,6 +60,11 @@ export default function LowScorePage() {
                         </button>
                     </Link>
                     <h1 className="text-xl font-bold text-white">Low Score List</h1>
+                    <div className="ml-auto">
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                            Premium
+                        </span>
+                    </div>
                 </div>
             </nav>
 
