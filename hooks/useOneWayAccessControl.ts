@@ -55,7 +55,7 @@ export function useOneWayAccessControl(user: FarcasterUser | null) {
     })
 
     const hasAccess = useMemo(() => {
-        const contractAccess = contractResults?.some(r => r.status === 'success' && r.result === true)
+        const contractAccess = contractResults?.some(r => r.status === 'success' && (r.result as boolean) === true)
         const nftAccess = nftResults?.some(r => r.status === 'success' && Number(r.result) > 0)
         return contractAccess || nftAccess
     }, [contractResults, nftResults])
