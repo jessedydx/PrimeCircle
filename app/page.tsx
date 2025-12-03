@@ -30,10 +30,7 @@ export default function DashboardPage() {
 
                 // Only show popup if user hasn't added the app
                 if (data.shouldShowPopup) {
-                    // Wait a bit for SDK to be fully ready
-                    await new Promise(resolve => setTimeout(resolve, 1000))
-
-                    // Show the "Add PrimeCircle to Farcaster" popup
+                    // Show the "Add PrimeCircle to Farcaster" popup immediately
                     await sdk.actions.addMiniApp()
                 }
             } catch (error) {
