@@ -35,6 +35,13 @@ export function useFollowers(fid: number | undefined, limit?: number) {
         enabled: !!fid,
         // Data is very stable, cache for a week
         staleTime: 7 * 24 * 60 * 60 * 1000,
+        gcTime: 7 * 24 * 60 * 60 * 1000,
+        // CRITICAL: Prevent any refetching
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchInterval: false,
+        refetchIntervalInBackground: false,
     })
 
     return {
