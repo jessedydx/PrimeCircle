@@ -1,21 +1,23 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useFarcasterContext } from '@/hooks/useFarcasterContext'
 import { useFollowing } from '@/hooks/useFollowing'
 import { useFollowers } from '@/hooks/useFollowers'
+import { useOneWayAccessControl } from '@/hooks/useOneWayAccessControl'
+import { OneWayPaymentGate } from '@/components/access/OneWayPaymentGate'
 import { UserCard } from '@/components/user-list/UserCard'
 import { EmptyState } from '@/components/user-list/EmptyState'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { ErrorMessage } from '@/components/ui/ErrorMessage'
 import { ChevronLeft, ArrowRightLeft } from 'lucide-react'
 import Link from 'next/link'
-import { useMemo } from 'react'
 
 export default function OneWayPage() {
     const { user } = useFarcasterContext()
     const { following, loading: followingLoading } = useFollowing(user?.fid)
-    // Limit to 1000 followers to save API credits
     const { followers, loading: followersLoading } = useFollowers(user?.fid, 1000)
+    const { hasAccess, isChecking, recheckAccess } = useOneWayAccessControl(user?.custodyAddress)
 
     const oneWayFollows = useMemo(() => {
         if (!following.length || !followers.length) return []
@@ -24,23 +26,30 @@ export default function OneWayPage() {
 
         return following
             .filter((followingUser) => !followerFids.has(followingUser.fid))
-            .sort((a, b) => b.neynar_user_score - a.neynar_user_score) // Highest score first
+            .sort((a, b) => b.neynar_user_score - a.neynar_user_score)
     }, [following, followers])
 
     const loading = followingLoading || followersLoading
 
-    if (loading) {
+    // Show loading while checking access or loading data
+    if (isChecking || loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen gap-4">
                 <LoadingSpinner size="lg" />
-                <p className="text-gray-400">Analyzing one-way follows...</p>
+                <p className="text-gray-400">
+                    {isChecking ? 'Checking access...' : 'Analyzing one-way follows...'}
+                </p>
             </div>
         )
     }
 
+    // Show payment gate if no access
+    if (!hasAccess) {
+        return <OneWayPaymentGate onAccessGranted={recheckAccess} />
+    }
+
     return (
         <main className="min-h-screen bg-slate-900 pb-20">
-            {/* Navbar */}
             <nav className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 px-4 py-3">
                 <div className="flex items-center gap-3 max-w-2xl mx-auto">
                     <Link href="/">
@@ -49,11 +58,15 @@ export default function OneWayPage() {
                         </button>
                     </Link>
                     <h1 className="text-xl font-bold text-white">One-way Follows</h1>
+                    <div className="ml-auto">
+                        <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+                            Premium
+                        </span>
+                    </div>
                 </div>
             </nav>
 
             <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-                {/* Description */}
                 <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
                     <p className="text-sm text-gray-300 mb-2">
                         You follow them, but they don't follow you back.
@@ -61,7 +74,6 @@ export default function OneWayPage() {
                     <p className="text-xs text-gray-400">Sorted by Neynar Score (High to Low)</p>
                 </div>
 
-                {/* Count */}
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-400">
                         Total One-way Follows:{' '}
@@ -69,7 +81,6 @@ export default function OneWayPage() {
                     </p>
                 </div>
 
-                {/* User List */}
                 <div className="space-y-3">
                     {oneWayFollows.length === 0 ? (
                         <EmptyState
@@ -82,7 +93,6 @@ export default function OneWayPage() {
                     )}
                 </div>
 
-                {/* Footer Stat */}
                 {oneWayFollows.length > 0 && (
                     <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
                         <p className="text-xs text-gray-400 text-center">

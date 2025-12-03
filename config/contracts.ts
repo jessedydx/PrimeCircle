@@ -5,10 +5,12 @@
 
 // Contract addresses on Base network
 export const PRIME_CIRCLE_ACCESS = '0x04583ED817718CA61e96972CBd3992Ffb3008241'
+export const ONE_WAY_ACCESS = '0xa5e58db187F07563B4fd5695090a489107D4703C'
 export const TIME_CAPSULES_NFT = '0x3F7A0ffC8703adcB405D3Fdb179a74281C5CF80b'
 
-// Access price in ETH
+// Access prices in ETH
 export const ACCESS_PRICE_ETH = '0.00035'
+export const ONE_WAY_PRICE_ETH = '0.001'
 
 // Contract ABI (Application Binary Interface)
 export const ACCESS_CONTRACT_ABI = [
