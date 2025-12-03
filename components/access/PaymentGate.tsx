@@ -143,6 +143,14 @@ export function PaymentGate({ onAccessGranted }: PaymentGateProps) {
                     <p className="text-xs text-gray-500 text-center mt-4">
                         Using Farcaster Wallet on Base Network
                     </p>
+
+                    {/* DEBUG INFO - REMOVE IN PRODUCTION */}
+                    <div className="mt-8 p-4 bg-black/50 rounded-lg text-xs font-mono text-gray-400 overflow-hidden">
+                        <p className="font-bold text-gray-300 mb-2">🔍 Debug Info:</p>
+                        <p>Connected: {isConnected ? 'Yes' : 'No'}</p>
+                        <p>Address: {address || 'None'}</p>
+                        <p>Chain ID: {window.ethereum?.chainId || 'Unknown'}</p>
+                    </div>
                 </div>
             </div>
         </div>
