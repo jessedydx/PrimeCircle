@@ -81,15 +81,15 @@ export default function DashboardPage() {
 
 
 
-                    <Link href="/opportunities">
+                    <Link href="/one-way">
                         <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-purple-500 transition-colors cursor-pointer">
                             <div className="flex items-center gap-3">
-                                <div className="bg-yellow-500/20 p-3 rounded-lg">
-                                    <Star className="h-6 w-6 text-yellow-400" />
+                                <div className="bg-blue-500/20 p-3 rounded-lg">
+                                    <ArrowRightLeft className="h-6 w-6 text-blue-400" />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-semibold text-white">Opportunities</h3>
-                                    <p className="text-sm text-gray-400">High-scoring accounts following you</p>
+                                    <h3 className="font-semibold text-white">One-way Follows</h3>
+                                    <p className="text-sm text-gray-400">You follow them, but they don't follow back</p>
                                 </div>
                             </div>
                         </div>
