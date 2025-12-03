@@ -25,6 +25,17 @@ export function useAccessControl(userAddress: string | undefined) {
         },
     })
 
+    // Debug: Log the address and access status
+    useEffect(() => {
+        if (addressToCheck) {
+            console.log('🔍 Low Score Access Check:')
+            console.log('  Address:', addressToCheck)
+            console.log('  Has Access:', hasAccess)
+            console.log('  Is Checking:', isChecking)
+            if (error) console.log('  Error:', error)
+        }
+    }, [addressToCheck, hasAccess, isChecking, error])
+
     return {
         hasAccess: hasAccess as boolean ?? false,
         isChecking,

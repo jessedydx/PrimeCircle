@@ -16,14 +16,29 @@ export const OPPORTUNITIES_PRICE_ETH = '0.0007'
 
 // Contract ABI (Application Binary Interface)
 export const ACCESS_CONTRACT_ABI = [
-    'function checkAccess(address user) external view returns (bool)',
-    'function purchaseAccess() external payable',
-    'function accessPrice() external view returns (uint256)',
-    'function getBalance() external view returns (uint256)',
-    'function hasAccess(address user) external view returns (bool)',
-]
+    {
+        inputs: [{ name: 'user', type: 'address' }],
+        name: 'checkAccess',
+        outputs: [{ name: '', type: 'bool' }],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'purchaseAccess',
+        outputs: [],
+        stateMutability: 'payable',
+        type: 'function',
+    },
+] as const
 
 // ERC721 ABI for NFT balance check
 export const ERC721_ABI = [
-    'function balanceOf(address owner) external view returns (uint256)',
-]
+    {
+        inputs: [{ name: 'owner', type: 'address' }],
+        name: 'balanceOf',
+        outputs: [{ name: '', type: 'uint256' }],
+        stateMutability: 'view',
+        type: 'function',
+    },
+] as const

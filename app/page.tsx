@@ -20,13 +20,24 @@ export default function DashboardPage() {
 
     // Trigger "Add to Farcaster" popup on first visit
     useEffect(() => {
-        const hasPromptedBefore = localStorage.getItem('miniapp_add_prompted')
+        async function promptAddMiniApp() {
+            const hasPromptedBefore = localStorage.getItem('miniapp_add_prompted')
 
-        if (!hasPromptedBefore && user) {
-            // Show the "Add PrimeCircle to Farcaster" popup
-            sdk.actions.addMiniApp()
-            localStorage.setItem('miniapp_add_prompted', 'true')
+            if (!hasPromptedBefore && user) {
+                try {
+                    // Wait a bit for SDK to be fully ready
+                    await new Promise(resolve => setTimeout(resolve, 1000))
+
+                    // Show the "Add PrimeCircle to Farcaster" popup
+                    await sdk.actions.addMiniApp()
+                    localStorage.setItem('miniapp_add_prompted', 'true')
+                } catch (error) {
+                    console.log('Add MiniApp not available:', error)
+                }
+            }
         }
+
+        promptAddMiniApp()
     }, [user])
 
     if (userLoading || followingLoading) {
