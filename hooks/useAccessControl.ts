@@ -60,7 +60,7 @@ export function useAccessControl(user: FarcasterUser | null) {
     // Calculate final access status
     const hasAccess = useMemo(() => {
         // Check contract access results
-        const contractAccess = contractResults?.some(result => result.status === 'success' && (result.result as boolean) === true)
+        const contractAccess = contractResults?.some(result => result.status === 'success' && (result.result as unknown as boolean) === true)
 
         // Check NFT balance results
         const nftAccess = nftResults?.some(result => result.status === 'success' && Number(result.result) > 0)
