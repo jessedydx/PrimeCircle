@@ -40,7 +40,7 @@ export function useOpportunitiesAccessControl(user: FarcasterUser | null) {
         refetch: refetchNft,
     } = useReadContracts({
         contracts: addressesToCheck.map(addr => ({
-            address: '0x3F7A0ffC8703adcB405D3Fdb179a74281C5CF80b',
+            address: '0x3F7A0ffC8703adcB405D3Fdb179a74281C5CF80b' as `0x${string}`,
             abi: [{
                 inputs: [{ name: 'owner', type: 'address' }],
                 name: 'balanceOf',
