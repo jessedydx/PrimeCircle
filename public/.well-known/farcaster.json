@@ -7,11 +7,11 @@
     "miniapp": {
         "version": "1",
         "name": "PrimeCircle",
-        "iconUrl": "https://prime-circle.vercel.app/icon-v2.png",
+        "iconUrl": "https://prime-circle.vercel.app/icon-v3.png",
         "homeUrl": "https://prime-circle.vercel.app",
-        "imageUrl": "https://prime-circle.vercel.app/og-image-v2.png",
+        "imageUrl": "https://prime-circle.vercel.app/og-image-v3.png",
         "buttonTitle": "Check Quality",
-        "splashImageUrl": "https://prime-circle.vercel.app/splash-v2.png",
+        "splashImageUrl": "https://prime-circle.vercel.app/splash-v3.png",
         "splashBackgroundColor": "#7c3aed",
         "primaryCategory": "social",
         "subtitle": "Analyze follow quality",
@@ -24,7 +24,7 @@
         "tagline": "Follow Quality Analytics",
         "ogTitle": "PrimeCircle Analytics",
         "ogDescription": "Analyze the quality of your Farcaster follow network with Neynar scores.",
-        "ogImageUrl": "https://prime-circle.vercel.app/og-image-v2.png",
+        "ogImageUrl": "https://prime-circle.vercel.app/og-image-v3.png",
         "webhookUrl": "https://prime-circle.vercel.app/api/webhook",
         "requiredCapabilities": []
     }
