@@ -7,8 +7,8 @@ import { getTier } from '@/lib/tiers'
 
 export function useFollowers(fid: number | undefined, limit?: number) {
     const { data, isLoading, error } = useQuery({
-        // Don't include limit in queryKey - it fragments the cache
-        queryKey: ['followers', fid],
+        // Version 2: Force fresh cache after refetch settings update
+        queryKey: ['followers', fid, 'v2'],
         queryFn: async () => {
             if (!fid) throw new Error('FID required')
 
