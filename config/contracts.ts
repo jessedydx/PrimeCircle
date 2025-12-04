@@ -42,3 +42,5 @@ export const ERC721_ABI = [
         type: 'function',
     },
 ] as const
+
+] as const
