@@ -1,6 +1,7 @@
 import { TierDistribution } from '@/types/tier'
 import { TIER_COLORS, TIER_LABELS } from '@/config/constants'
 import { Card } from '@/components/ui/Card'
+import sdk from '@farcaster/frame-sdk'
 
 interface TierDistributionProps {
     distribution?: TierDistribution | null
