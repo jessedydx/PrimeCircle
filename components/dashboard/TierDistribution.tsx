@@ -57,7 +57,9 @@ export function TierDistributionCard({ distribution, score }: TierDistributionPr
                     const shareText = `My Follow Quality Score: ${score || 0}/100 🎯\n\nAnalyze your Farcaster network with @primecircle!\n\n✨ Check your score:`
                     const shareUrl = 'https://farcaster.xyz/miniapps/BrA6feZliVvX/primecircle'
                     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(shareUrl)}`
-                    window.open(warpcastUrl, '_blank')
+
+                    // Use SDK to open URL - handles mobile deep linking better
+                    sdk.actions.openUrl(warpcastUrl)
                 }}
                 className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20"
             >
