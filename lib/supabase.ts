@@ -112,3 +112,65 @@ export async function sendNotification(fid: number, message: string) {
 
     return response.json()
 }
+
+/**
+ * Update user stats (API usage tracking)
+ */
+export async function updateUserStats(
+    fid: number,
+    username: string,
+    displayName: string,
+    followerCount: number,
+    followingCount: number,
+    itemsFetched: number
+) {
+    const supabase = getSupabase()
+
+    // First try to get existing stats to increment counters
+    const { data: existing } = await supabase
+        .from('user_stats')
+        .select('api_calls, items_fetched')
+        .eq('fid', fid)
+        .maybeSingle()
+
+    const currentApiCalls = (existing?.api_calls || 0) + 1
+    const currentItemsFetched = (existing?.items_fetched || 0) + itemsFetched
+
+    const { error } = await supabase
+        .from('user_stats')
+        .upsert({
+            fid,
+            username,
+            display_name: displayName,
+            follower_count: followerCount,
+            following_count: followingCount,
+            api_calls: currentApiCalls,
+            items_fetched: currentItemsFetched,
+            last_active: new Date().toISOString(),
+        })
+
+    if (error) {
+        console.error('Error updating user stats:', error)
+        // Don't throw error to avoid blocking the main app flow
+    }
+}
+
+/**
+ * Get all user stats for dashboard
+ */
+export async function getUserStats() {
+    const supabase = getSupabase()
+
+    const { data, error } = await supabase
+        .from('user_stats')
+        .select('*')
+        .order('last_active', { ascending: false })
+        .limit(100)
+
+    if (error) {
+        console.error('Error fetching user stats:', error)
+        throw error
+    }
+
+    return data
+}

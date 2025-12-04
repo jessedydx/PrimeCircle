@@ -22,6 +22,36 @@ export async function GET(request: NextRequest) {
             tier: getTier(user.neynar_user_score || 0),
         }))
 
+        // 3. Track API usage (fire and forget)
+        // We need user info for the stats. Since this is a public endpoint, 
+        // we might not have the caller's full info easily available unless we fetch it.
+        // For now, we'll try to use the first user in the list if it matches the FID,
+        // or just log the FID activity.
+        // Ideally, we should fetch the caller's profile, but to save API calls,
+        // we will just log the FID and update counts.
+        // 3. Track API usage (fire and forget)
+        import('@/lib/supabase').then(async ({ updateUserStats }) => {
+            try {
+                // Fetch user details to populate dashboard correctly
+                const { getUsersBulk } = await import('@/lib/neynar')
+                const users = await getUsersBulk([parseInt(fid)])
+                const user = users[0]
+
+                if (user) {
+                    updateUserStats(
+                        user.fid,
+                        user.username,
+                        user.display_name,
+                        user.follower_count,
+                        user.following_count,
+                        followers.length
+                    )
+                }
+            } catch (err) {
+                console.error('Stats update failed', err)
+            }
+        })
+
         return NextResponse.json({ users: withTiers })
     } catch (error) {
         console.error('Error fetching followers:', error)
