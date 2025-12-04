@@ -159,6 +159,37 @@ export async function updateUserStats(
  * Get all user stats for dashboard
  */
 export async function getUserStats() {
+    // Check for mock data flag or missing env vars
+    const useMock = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'
+    const hasEnv = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+        (process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
+    if (useMock || !hasEnv) {
+        console.warn('Using MOCK DATA for user stats (Supabase not configured or Mock enabled)')
+        return [
+            {
+                fid: 12345,
+                username: 'mock_user',
+                display_name: 'Mock User',
+                follower_count: 150,
+                following_count: 42,
+                api_calls: 10,
+                items_fetched: 500,
+                last_active: new Date().toISOString()
+            },
+            {
+                fid: 67890,
+                username: 'demo_admin',
+                display_name: 'Demo Admin',
+                follower_count: 1337,
+                following_count: 0,
+                api_calls: 99,
+                items_fetched: 10000,
+                last_active: new Date(Date.now() - 86400000).toISOString()
+            }
+        ]
+    }
+
     const supabase = getSupabase()
 
     const { data, error } = await supabase
