@@ -124,34 +124,47 @@ export async function updateUserStats(
     followingCount: number,
     itemsFetched: number
 ) {
-    const supabase = getSupabase()
+    // Check for mock data flag or missing env vars
+    const useMock = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'
+    const hasEnv = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+        (process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
-    // First try to get existing stats to increment counters
-    const { data: existing } = await supabase
-        .from('user_stats')
-        .select('api_calls, items_fetched')
-        .eq('fid', fid)
-        .maybeSingle()
+    if (useMock || !hasEnv) {
+        // Silently skip stats update if mock mode or no env
+        return
+    }
 
-    const currentApiCalls = (existing?.api_calls || 0) + 1
-    const currentItemsFetched = (existing?.items_fetched || 0) + itemsFetched
+    try {
+        const supabase = getSupabase()
 
-    const { error } = await supabase
-        .from('user_stats')
-        .upsert({
-            fid,
-            username,
-            display_name: displayName,
-            follower_count: followerCount,
-            following_count: followingCount,
-            api_calls: currentApiCalls,
-            items_fetched: currentItemsFetched,
-            last_active: new Date().toISOString(),
-        })
+        // First try to get existing stats to increment counters
+        const { data: existing } = await supabase
+            .from('user_stats')
+            .select('api_calls, items_fetched')
+            .eq('fid', fid)
+            .maybeSingle()
 
-    if (error) {
-        console.error('Error updating user stats:', error)
-        // Don't throw error to avoid blocking the main app flow
+        const currentApiCalls = (existing?.api_calls || 0) + 1
+        const currentItemsFetched = (existing?.items_fetched || 0) + itemsFetched
+
+        const { error } = await supabase
+            .from('user_stats')
+            .upsert({
+                fid,
+                username,
+                display_name: displayName,
+                follower_count: followerCount,
+                following_count: followingCount,
+                api_calls: currentApiCalls,
+                items_fetched: currentItemsFetched,
+                last_active: new Date().toISOString(),
+            })
+
+        if (error) {
+            console.error('Error updating user stats:', error)
+        }
+    } catch (err) {
+        console.error('Failed to update user stats:', err)
     }
 }
 
