@@ -22,28 +22,26 @@ export async function GET(request: NextRequest) {
             tier: getTier(user.neynar_user_score || 0),
         }))
 
-        // 3. Track API usage (fire and forget)
-        import('@/lib/supabase').then(async ({ updateUserStats }) => {
-            try {
-                // Fetch user details to populate dashboard correctly
-                const { getUsersBulk } = await import('@/lib/neynar')
-                const users = await getUsersBulk([parseInt(fid)])
-                const user = users[0]
+        // 3. Track API usage (await to ensure completion)
+        try {
+            const { updateUserStats } = await import('@/lib/supabase')
+            const { getUsersBulk } = await import('@/lib/neynar')
+            const users = await getUsersBulk([parseInt(fid)])
+            const user = users[0]
 
-                if (user) {
-                    updateUserStats(
-                        user.fid,
-                        user.username,
-                        user.display_name,
-                        user.follower_count,
-                        user.following_count,
-                        following.length
-                    )
-                }
-            } catch (err) {
-                console.error('Stats update failed', err)
+            if (user) {
+                await updateUserStats(
+                    user.fid,
+                    user.username,
+                    user.display_name,
+                    user.follower_count,
+                    user.following_count,
+                    following.length
+                )
             }
-        })
+        } catch (err) {
+            console.error('Stats update failed', err)
+        }
 
         return NextResponse.json({ users: withTiers })
     } catch (error) {
