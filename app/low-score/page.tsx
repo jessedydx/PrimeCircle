@@ -19,9 +19,24 @@ export default function LowScorePage() {
     const { following, loading, error } = useFollowing(user?.fid)
     const { hasAccess, isChecking, recheckAccess } = useAccessControl(user)
     const [selectedTiers, setSelectedTiers] = useState<Tier[]>([Tier.D])
+    const [searchQuery, setSearchQuery] = useState('')
 
     const filteredUsers = following
-        .filter((u) => selectedTiers.includes(u.tier))
+        .filter((u) => {
+            // Filter by tier
+            if (!selectedTiers.includes(u.tier)) return false
+
+            // Filter by search query
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase()
+                return (
+                    u.username.toLowerCase().includes(query) ||
+                    u.display_name?.toLowerCase().includes(query)
+                )
+            }
+
+            return true
+        })
         .sort((a, b) => a.neynar_user_score - b.neynar_user_score) // Lowest first
 
     // Show loading while checking access
@@ -77,8 +92,27 @@ export default function LowScorePage() {
                     </p>
                 </div>
 
-                {/* Filter */}
-                <UserListFilter selectedTiers={selectedTiers} onTiersChange={setSelectedTiers} />
+                {/* Search & Filter */}
+                <div className="space-y-4">
+                    {/* Search Input */}
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search by username..."
+                            className="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg leading-5 bg-slate-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:bg-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Filter */}
+                    <UserListFilter selectedTiers={selectedTiers} onTiersChange={setSelectedTiers} />
+                </div>
 
                 {/* Count */}
                 <div className="flex items-center justify-between">
