@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getUserStats } from '@/lib/supabase'
 
 interface UserStats {
     fid: number
@@ -25,7 +24,9 @@ export default function AdminDashboard() {
 
     async function loadStats() {
         try {
-            const data = await getUserStats()
+            const response = await fetch('/api/admin/stats')
+            if (!response.ok) throw new Error('Failed to fetch stats')
+            const data = await response.json()
             setStats(data as UserStats[])
         } catch (err) {
             console.error('Failed to load stats:', err)
