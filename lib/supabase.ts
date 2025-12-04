@@ -190,18 +190,44 @@ export async function getUserStats() {
         ]
     }
 
-    const supabase = getSupabase()
+    try {
+        const supabase = getSupabase()
 
-    const { data, error } = await supabase
-        .from('user_stats')
-        .select('*')
-        .order('last_active', { ascending: false })
-        .limit(100)
+        const { data, error } = await supabase
+            .from('user_stats')
+            .select('*')
+            .order('last_active', { ascending: false })
+            .limit(100)
 
-    if (error) {
-        console.error('Error fetching user stats:', error)
-        throw error
+        if (error) {
+            console.error('Supabase error, falling back to mock data:', error)
+            throw error
+        }
+
+        return data
+    } catch (err) {
+        console.warn('Failed to fetch from Supabase, returning MOCK DATA:', err)
+        return [
+            {
+                fid: 12345,
+                username: 'mock_user',
+                display_name: 'Mock User (Fallback)',
+                follower_count: 150,
+                following_count: 42,
+                api_calls: 10,
+                items_fetched: 500,
+                last_active: new Date().toISOString()
+            },
+            {
+                fid: 67890,
+                username: 'demo_admin',
+                display_name: 'Demo Admin (Fallback)',
+                follower_count: 1337,
+                following_count: 0,
+                api_calls: 99,
+                items_fetched: 10000,
+                last_active: new Date(Date.now() - 86400000).toISOString()
+            }
+        ]
     }
-
-    return data
 }
