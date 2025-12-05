@@ -16,8 +16,8 @@ import Link from 'next/link'
 
 export default function LowScorePage() {
     const { user } = useFarcasterContext()
-    const { following, loading, error } = useFollowing(user?.fid)
     const { hasAccess, isChecking, recheckAccess } = useAccessControl(user)
+    const { following, loading, error } = useFollowing(user?.fid, { enabled: hasAccess })
     const [selectedTiers, setSelectedTiers] = useState<Tier[]>([Tier.D])
     const [searchQuery, setSearchQuery] = useState('')
 

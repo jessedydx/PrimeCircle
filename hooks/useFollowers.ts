@@ -5,7 +5,13 @@ import { EnrichedFollower } from '@/types/user'
 import { mockFollowers, USE_MOCK_DATA } from '@/lib/mockData'
 import { getTier } from '@/lib/tiers'
 
-export function useFollowers(fid: number | undefined, limit?: number) {
+interface UseFollowersOptions {
+    enabled?: boolean
+}
+
+export function useFollowers(fid: number | undefined, options: UseFollowersOptions = {}) {
+    const { enabled = true } = options
+
     const { data, isLoading, error } = useQuery({
         // Don't include limit in queryKey - it fragments the cache
         queryKey: ['followers', fid],
@@ -32,7 +38,7 @@ export function useFollowers(fid: number | undefined, limit?: number) {
             const { users } = await response.json()
             return users as EnrichedFollower[]
         },
-        enabled: !!fid,
+        enabled: !!fid && enabled,
         // Data is very stable, cache for a week
         staleTime: 7 * 24 * 60 * 60 * 1000,
         gcTime: 7 * 24 * 60 * 60 * 1000,

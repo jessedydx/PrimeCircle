@@ -14,9 +14,9 @@ import Link from 'next/link'
 
 export default function OpportunitiesPage() {
     const { user } = useFarcasterContext()
-    const { following, loading: followingLoading } = useFollowing(user?.fid)
-    const { followers, loading: followersLoading } = useFollowers(user?.fid)
     const { hasAccess, isChecking, recheckAccess } = useOpportunitiesAccessControl(user)
+    const { following, loading: followingLoading } = useFollowing(user?.fid, { enabled: hasAccess })
+    const { followers, loading: followersLoading } = useFollowers(user?.fid, { enabled: hasAccess })
 
     const opportunities = useMemo(() => {
         if (!following.length || !followers.length) return []

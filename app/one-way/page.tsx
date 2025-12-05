@@ -15,9 +15,9 @@ import Link from 'next/link'
 
 export default function OneWayPage() {
     const { user } = useFarcasterContext()
-    const { following, loading: followingLoading } = useFollowing(user?.fid)
-    const { followers, loading: followersLoading } = useFollowers(user?.fid)
     const { hasAccess, isChecking, recheckAccess } = useOneWayAccessControl(user)
+    const { following, loading: followingLoading } = useFollowing(user?.fid, { enabled: hasAccess })
+    const { followers, loading: followersLoading } = useFollowers(user?.fid, { enabled: hasAccess })
 
     const oneWayFollows = useMemo(() => {
         if (!following.length || !followers.length) return []
