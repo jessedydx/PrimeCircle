@@ -3,8 +3,9 @@
 import { useEffect } from 'react'
 import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { parseEther } from 'viem'
-import { Lock, Loader2, Check } from 'lucide-react'
+import { Lock, Loader2, Check, X } from 'lucide-react'
 import { OPPORTUNITIES_ACCESS, ACCESS_CONTRACT_ABI, OPPORTUNITIES_PRICE_ETH } from '@/config/contracts'
+import Link from 'next/link'
 
 interface OpportunitiesPaymentGateProps {
     onAccessGranted: () => void
@@ -45,7 +46,13 @@ export function OpportunitiesPaymentGate({ onAccessGranted }: OpportunitiesPayme
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
             <div className="max-w-md w-full">
-                <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl relative">
+                    <Link href="/">
+                        <button className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-slate-700 rounded-full transition-colors">
+                            <X className="h-5 w-5" />
+                        </button>
+                    </Link>
+
                     <div className="flex justify-center mb-6">
                         <div className="bg-green-500/20 p-4 rounded-full">
                             <Lock className="h-12 w-12 text-green-400" />

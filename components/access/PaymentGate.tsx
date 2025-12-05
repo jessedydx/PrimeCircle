@@ -3,8 +3,9 @@
 import { useEffect } from 'react'
 import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi'
 import { parseEther } from 'viem'
-import { Lock, Loader2, Check } from 'lucide-react'
+import { Lock, Loader2, Check, X } from 'lucide-react'
 import { PRIME_CIRCLE_ACCESS, ACCESS_CONTRACT_ABI, ACCESS_PRICE_ETH } from '@/config/contracts'
+import Link from 'next/link'
 
 interface PaymentGateProps {
     onAccessGranted: () => void
@@ -49,7 +50,14 @@ export function PaymentGate({ onAccessGranted }: PaymentGateProps) {
     return (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
             <div className="max-w-md w-full">
-                <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl relative">
+                    {/* Close Button */}
+                    <Link href="/">
+                        <button className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-slate-700 rounded-full transition-colors">
+                            <X className="h-5 w-5" />
+                        </button>
+                    </Link>
+
                     {/* Icon */}
                     <div className="flex justify-center mb-6">
                         <div className="bg-purple-500/20 p-4 rounded-full">
