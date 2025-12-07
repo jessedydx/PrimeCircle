@@ -78,6 +78,28 @@ export function useAccessControl(user: FarcasterUser | null) {
         }
     }, [addressesToCheck, contractResults, nftResults, hasAccess])
 
+    // LAZY SYNC: If user has access on-chain but DB doesn't know, tell DB
+    const syncAttempted = useMemo(() => ({ current: false }), []) // Mutable ref in memo hack
+
+    useEffect(() => {
+        if (hasAccess && user?.fid && !syncAttempted.current) {
+            // Determine source
+            const contractAccess = contractResults?.some(result => result.status === 'success' && (result.result as unknown as boolean) === true)
+            const source = contractAccess ? 'payment' : 'nft'
+
+            syncAttempted.current = true
+            fetch('/api/record-purchase', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fid: user.fid,
+                    type: 'low-score',
+                    source
+                })
+            }).catch(err => console.error('Lazy sync failed', err))
+        }
+    }, [hasAccess, user?.fid, syncAttempted, contractResults])
+
     // TEMPORARY: Force no access for payment gate testing
     const TESTING_PAYMENT_GATE = false
 

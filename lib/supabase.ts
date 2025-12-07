@@ -169,6 +169,51 @@ export async function updateUserStats(
 }
 
 /**
+ * Record a purchase in the database
+ */
+export async function recordPurchase(
+    fid: number,
+    purchaseType: 'low-score' | 'one-way' | 'opportunities',
+    source: 'payment' | 'nft' = 'payment'
+) {
+    const supabase = getSupabase()
+
+    // Map purchase type to column name
+    const columnMap = {
+        'low-score': 'purchased_low_score',
+        'one-way': 'purchased_one_way',
+        'opportunities': 'purchased_opportunities'
+    }
+
+    const sourceColumnMap = {
+        'low-score': 'access_source_low_score',
+        'one-way': 'access_source_one_way',
+        'opportunities': 'access_source_opportunities'
+    }
+
+    const column = columnMap[purchaseType]
+    const sourceColumn = sourceColumnMap[purchaseType]
+
+    if (!column || !sourceColumn) return
+
+    try {
+        const { error } = await supabase
+            .from('user_stats')
+            .update({
+                [column]: true,
+                [sourceColumn]: source
+            })
+            .eq('fid', fid)
+
+        if (error) {
+            console.error('Error recording purchase:', error)
+        }
+    } catch (err) {
+        console.error('Failed to record purchase:', err)
+    }
+}
+
+/**
  * Get all user stats for dashboard
  */
 export async function getUserStats() {

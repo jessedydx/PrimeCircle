@@ -6,6 +6,7 @@ import { parseEther } from 'viem'
 import { Lock, Loader2, Check, X } from 'lucide-react'
 import { OPPORTUNITIES_ACCESS, ACCESS_CONTRACT_ABI, OPPORTUNITIES_PRICE_ETH } from '@/config/contracts'
 import Link from 'next/link'
+import { useFarcasterContext } from '@/hooks/useFarcasterContext'
 
 interface OpportunitiesPaymentGateProps {
     onAccessGranted: () => void
@@ -26,11 +27,23 @@ export function OpportunitiesPaymentGate({ onAccessGranted }: OpportunitiesPayme
         }
     }, [isConnected, connectors, connect])
 
+    const { user } = useFarcasterContext()
+
     useEffect(() => {
         if (isSuccess) {
+            if (user?.fid) {
+                fetch('/api/record-purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fid: user.fid,
+                        type: 'opportunities'
+                    })
+                }).catch(err => console.error('Failed to record purchase', err))
+            }
             onAccessGranted()
         }
-    }, [isSuccess, onAccessGranted])
+    }, [isSuccess, onAccessGranted, user?.fid])
 
     function handlePurchase() {
         writeContract({

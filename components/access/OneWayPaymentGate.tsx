@@ -6,6 +6,7 @@ import { parseEther } from 'viem'
 import { Lock, Loader2, Check, X } from 'lucide-react'
 import { ONE_WAY_ACCESS, ACCESS_CONTRACT_ABI, ONE_WAY_PRICE_ETH } from '@/config/contracts'
 import Link from 'next/link'
+import { useFarcasterContext } from '@/hooks/useFarcasterContext'
 
 interface OneWayPaymentGateProps {
     onAccessGranted: () => void
@@ -28,11 +29,23 @@ export function OneWayPaymentGate({ onAccessGranted }: OneWayPaymentGateProps) {
         }
     }, [isConnected, connectors, connect])
 
+    const { user } = useFarcasterContext()
+
     useEffect(() => {
         if (isSuccess) {
+            if (user?.fid) {
+                fetch('/api/record-purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fid: user.fid,
+                        type: 'one-way'
+                    })
+                }).catch(err => console.error('Failed to record purchase', err))
+            }
             onAccessGranted()
         }
-    }, [isSuccess, onAccessGranted])
+    }, [isSuccess, onAccessGranted, user?.fid])
 
     function handlePurchase() {
         writeContract({

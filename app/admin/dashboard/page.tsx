@@ -11,6 +11,12 @@ interface UserStats {
     api_calls: number
     items_fetched: number
     last_active: string
+    purchased_low_score?: boolean
+    purchased_one_way?: boolean
+    purchased_opportunities?: boolean
+    access_source_low_score?: string
+    access_source_one_way?: string
+    access_source_opportunities?: string
 }
 
 export default function AdminDashboard() {
@@ -76,6 +82,9 @@ export default function AdminDashboard() {
                                     <th className="px-6 py-4 text-center">Following</th>
                                     <th className="px-6 py-4 text-center">API Calls</th>
                                     <th className="px-6 py-4 text-center">Items Fetched</th>
+                                    <th className="px-6 py-4 text-center">Low Score</th>
+                                    <th className="px-6 py-4 text-center">One Way</th>
+                                    <th className="px-6 py-4 text-center">Opps</th>
                                     <th className="px-6 py-4 text-right">Last Active</th>
                                 </tr>
                             </thead>
@@ -106,6 +115,45 @@ export default function AdminDashboard() {
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400">
                                                 {user.items_fetched?.toLocaleString()}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            {user.purchased_low_score ? (
+                                                user.access_source_low_score === 'nft' ? (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                                                        NFT
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-green-400 font-bold">✓</span>
+                                                )
+                                            ) : (
+                                                <span className="text-gray-600">-</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            {user.purchased_one_way ? (
+                                                user.access_source_one_way === 'nft' ? (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                                                        NFT
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-green-400 font-bold">✓</span>
+                                                )
+                                            ) : (
+                                                <span className="text-gray-600">-</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            {user.purchased_opportunities ? (
+                                                user.access_source_opportunities === 'nft' ? (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                                                        NFT
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-green-400 font-bold">✓</span>
+                                                )
+                                            ) : (
+                                                <span className="text-gray-600">-</span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-right text-gray-400">
                                             {new Date(user.last_active).toLocaleString()}

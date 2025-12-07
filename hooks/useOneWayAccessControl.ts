@@ -3,7 +3,7 @@
 import { useReadContracts, useAccount } from 'wagmi'
 import { ONE_WAY_ACCESS, ACCESS_CONTRACT_ABI } from '@/config/contracts'
 import { FarcasterUser } from './useFarcasterContext'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 
 export function useOneWayAccessControl(user: FarcasterUser | null) {
     const { address: connectedAddress } = useAccount()
@@ -89,6 +89,28 @@ export function useOneWayAccessControl(user: FarcasterUser | null) {
     }, [addressesToCheck, frontendAccess, isCheckingContract, isCheckingNft])
 
     const hasAccess = frontendAccess || (apiAccess ?? false)
+
+    // LAZY SYNC: If user has access on-chain but DB doesn't know, tell DB
+    const syncAttempted = useRef(false)
+
+    useEffect(() => {
+        if (hasAccess && user?.fid && !syncAttempted.current) {
+            // Determine source
+            const contractAccess = contractResults?.some(r => r.status === 'success' && (r.result as unknown as boolean) === true)
+            const source = contractAccess ? 'payment' : 'nft'
+
+            syncAttempted.current = true
+            fetch('/api/record-purchase', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fid: user.fid,
+                    type: 'one-way',
+                    source
+                })
+            }).catch(err => console.error('Lazy sync failed', err))
+        }
+    }, [hasAccess, user?.fid, contractResults])
 
     const TESTING_PAYMENT_GATE = false
 
